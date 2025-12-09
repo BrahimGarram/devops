@@ -1,12 +1,20 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'M2_HOME'
+    }
+
     stages {
-        stage('Hello') {
+
+        stage('GIT') {
             steps {
-                echo 'Hello Barhoum'
+                git branch: 'brahim',
+                    url: 'https://github.com/hwafa/atelier-jenkins.git',
+                    credentialsId: 'jenkins-example-github-pat'
             }
         }
+
         stage('MVN CLEAN') {
             steps {
                 sh 'mvn clean'
@@ -17,6 +25,7 @@ pipeline {
             steps {
                 sh 'mvn compile'
             }
-        } 
+        }
+
     }
 }
