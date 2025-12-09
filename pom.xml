@@ -30,7 +30,9 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+         <sonar.projectKey>mon-projet</sonar.projectKey>
     </properties>
+          
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
