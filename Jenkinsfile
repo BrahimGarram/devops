@@ -10,8 +10,8 @@ pipeline {
         stage('GIT') {
             steps {
                 git branch: 'brahim',
-                    url: 'https://github.com/hwafa/atelier-jenkins.git',
-                    credentialsId: 'jenkins-example-github-pat'
+                    url: 'https://github.com/BrahimGarram/devops.git',
+                    credentialsId: 'github-token'
             }
         }
 
