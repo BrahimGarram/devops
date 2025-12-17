@@ -49,9 +49,10 @@ pipeline {
             }
         }
         
-        stage('DOCKER COMPOSE UP') {
+        stage('Docker Compose Up') {
             steps {
-                // Lancer Docker Compose en arrière-plan
+                // Stop et remove les anciens containers pour éviter conflit
+                sh 'docker-compose down'
                 sh 'docker-compose up -d --build'
             }
         }
