@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'M2_HOME'  // Assure-toi que Maven est installé sur Jenkins avec ce nom
+        maven 'M2_HOME'
     }
 
     stages {
@@ -29,7 +29,7 @@ pipeline {
 
         stage('MVN PACKAGE') {
             steps {
-                sh 'mvn package -DskipTests'  // Génère le JAR dans target/
+                sh 'mvn package -DskipTests'
             }
         }
 
@@ -41,9 +41,12 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Cleanup & Build') {
             steps {
                 sh '''
+                # Supprimer containers existants si ils existent
+                docker rm -f tp-foyer-container tp-foyer-mysql || true
+                
                 # Supprimer l'ancienne image si elle existe
                 docker rmi -f tp-foyer-app:1.0 || true
 
@@ -56,10 +59,10 @@ pipeline {
         stage('Docker Compose Up') {
             steps {
                 sh '''
-                # Stop et remove les anciens containers + supprimer orphelins
+                # Supprimer containers et réseaux orphelins
                 docker-compose down --remove-orphans
 
-                # Build et lancement des containers
+                # Lancer les services
                 docker-compose up -d --build
                 '''
             }
