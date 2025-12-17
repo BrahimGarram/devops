@@ -44,11 +44,18 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh '''
+                # Supprimer l'ancien container s'il existe
+                docker rm -f tp-foyer-container || true
+        
+                # Supprimer l'ancienne image s'il existe (optionnel mais propre)
+                docker rmi -f tp-foyer-app:1.0 || true
+        
+                # Build de la nouvelle image
                 docker build -t tp-foyer-app:1.0 .
                 '''
             }
         }
-        
+
         stage('Docker Compose Up') {
             steps {
                 // Stop et remove les anciens containers pour éviter conflit
