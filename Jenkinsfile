@@ -9,7 +9,6 @@ pipeline {
 
         stage('GIT') {
             steps {
-                // Cloner le repo avec le token Git
                 git branch: 'brahim',
                     url: 'https://github.com/BrahimGarram/devops.git',
                     credentialsId: 'github-token'
@@ -28,12 +27,41 @@ pipeline {
             }
         }
 
+        stage('MVN PACKAGE') {
+            steps {
+                sh 'mvn package -DskipTests'  // Génère le JAR dans target/
+            }
+        }
+
         stage('MVN SONARQUBE') {
             steps {
-                // Utilise le serveur SonarQube configuré dans Jenkins
                 withSonarQubeEnv('sonarqube') {
                     sh 'mvn sonar:sonar'
                 }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                docker build -t tp-foyer-app:1.0 .
+                '''
+            }
+        }
+
+        stage('Docker Run') {
+            steps {
+                sh '''
+                # Stop et remove l'ancien container si existant
+                docker stop tp-foyer-container || true
+                docker rm tp-foyer-container || true
+
+                # Lancer le nouveau container
+                docker run -d \
+                  -p 8081:8080 \
+                  --name tp-foyer-container \
+                  tp-foyer-app:1.0
+                '''
             }
         }
 
