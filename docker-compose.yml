@@ -14,10 +14,11 @@ services:
     networks:
       - tp-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
       interval: 10s
-      retries: 5
-      start_period: 20s
+      retries: 10
+      start_period: 30s
+
 
   # Application Spring Boot
   tp-foyer-container:
