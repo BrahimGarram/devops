@@ -48,6 +48,13 @@ pipeline {
                 '''
             }
         }
+        
+        stage('DOCKER COMPOSE UP') {
+            steps {
+                // Lancer Docker Compose en arrière-plan
+                sh 'docker-compose up -d --build'
+            }
+        }
 
         stage('Docker Run') {
             steps {
