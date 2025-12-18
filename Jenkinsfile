@@ -71,11 +71,12 @@ pipeline {
         stage('DEPLOY TO KUBERNETES') {
             steps {
                 sh '''
-                  kubectl apply -f k8s-deployment.yaml
-                  kubectl apply -f k8s-service.yaml
+                  kubectl apply -f k8s/mysql-deployment.yaml
+                  kubectl apply -f k8s/spring-deployment.yaml
                 '''
             }
         }
+
 
     }
 
