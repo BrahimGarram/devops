@@ -68,6 +68,15 @@ pipeline {
             }
         }
 
+        stage('DEPLOY TO KUBERNETES') {
+            steps {
+                sh '''
+                  kubectl apply -f k8s-deployment.yaml
+                  kubectl apply -f k8s-service.yaml
+                '''
+            }
+        }
+
     }
 
     post {
