@@ -68,14 +68,7 @@ pipeline {
             }
         }
 
-        stage('DEPLOY TO KUBERNETES') {
-            steps {
-                sh '''
-                  kubectl apply -f khadem_devops/k8s/mysql-deployment.yaml
-                  kubectl apply -f khadem_devops/k8s/spring-deployment.yaml
-                '''
-            }
-        }
+       
 
 
 
