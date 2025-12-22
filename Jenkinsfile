@@ -44,13 +44,8 @@ pipeline {
         stage('Docker Cleanup & Build') {
             steps {
                 sh '''
-                # Supprimer containers existants si ils existent
-                docker rm -f tp-foyer-container tp-foyer-mysql || true
-                
-                # Supprimer l'ancienne image si elle existe
+                docker rm -f tp-foyer-container tp-foyer-mysql prometheus grafana || true
                 docker rmi -f tp-foyer-app:1.0 || true
-
-                # Build de la nouvelle image
                 docker build -t tp-foyer-app:1.0 .
                 '''
             }
@@ -59,58 +54,59 @@ pipeline {
         stage('Docker Compose Up') {
             steps {
                 sh '''
-                # Supprimer containers et réseaux orphelins
                 docker-compose down --remove-orphans
-
-                # Lancer les services
                 docker-compose up -d --build
                 '''
             }
         }
-        
-        stage('GIT KUBERNETES MANIFESTS') {
+
+        /* =======================
+           PROMETHEUS SETUP
+        ======================= */
+        stage('Prometheus Setup') {
             steps {
-                dir('k8s-repo') {
-                    git branch: 'master',
-                        url: 'https://github.com/NadineMili/student-management-devops.git'
+                script {
+                    writeFile file: 'prometheus.yml', text: """
+                    global:
+                      scrape_interval: 15s
+
+                    scrape_configs:
+                      - job_name: 'springboot'
+                        metrics_path: '/actuator/prometheus'
+                        static_configs:
+                          - targets: ['tp-foyer-container:8080']
+                    """
                 }
-            }
-        }
 
-        /* =======================
-           KUBERNETES DEPLOY
-        ======================= */
-        stage('KUBERNETES DEPLOY') {
-            steps {
                 sh '''
-                echo "===== Kubernetes Deployment ====="
-                kubectl get nodes
-
-                kubectl apply -f k8s-repo/student-man-main/k8s/
-
-                kubectl get pods -n devops
-                kubectl get svc -n devops
+                docker run -d --name prometheus \
+                    -p 9090:9090 \
+                    -v ${PWD}/prometheus.yml:/etc/prometheus/prometheus.yml \
+                    --network tp-network \
+                    prom/prometheus:latest
                 '''
             }
         }
 
         /* =======================
-           API REST
+           GRAFANA SETUP
         ======================= */
-        stage('CREATE DEPARTMENT') {
+        stage('Grafana Setup') {
             steps {
                 sh '''
-                echo "===== Creating Department via REST API ====="
-                sleep 20
-                curl -X POST http://192.168.49.2:32639/department/createDepartment \
-                     -H "Content-Type: application/json" \
-                     -d '{"name": "Finance", "location": "Sfax"}'
+                docker run -d --name grafana \
+                    -p 3000:3000 \
+                    -e GF_SECURITY_ADMIN_PASSWORD=admin \
+                    --network tp-network \
+                    grafana/grafana:latest
                 '''
             }
         }
-       
 
-
+        /* =======================
+           TEST API REST
+        ======================= */
+    
 
     }
 
