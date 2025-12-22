@@ -19,7 +19,6 @@ services:
       retries: 10
       start_period: 30s
 
-
   # Application Spring Boot
   tp-foyer-container:
     image: tp-foyer-app:1.0
@@ -35,6 +34,32 @@ services:
       - "8081:8080"
     networks:
       - tp-network
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    networks:
+      - tp-network
+    depends_on:
+      - tp-foyer-container
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    networks:
+      - tp-network
+    depends_on:
+      - prometheus
 
 networks:
   tp-network:
