@@ -63,45 +63,12 @@ pipeline {
         /* =======================
            PROMETHEUS SETUP
         ======================= */
-        stage('Prometheus Setup') {
-            steps {
-                script {
-                    writeFile file: 'prometheus.yml', text: """
-                    global:
-                      scrape_interval: 15s
 
-                    scrape_configs:
-                      - job_name: 'springboot'
-                        metrics_path: '/actuator/prometheus'
-                        static_configs:
-                          - targets: ['tp-foyer-container:8080']
-                    """
-                }
-
-                sh '''
-                docker run -d --name prometheus \
-                    -p 9090:9090 \
-                    -v ${PWD}/prometheus.yml:/etc/prometheus/prometheus.yml \
-                    --network tp-network \
-                    prom/prometheus:latest
-                '''
-            }
-        }
 
         /* =======================
            GRAFANA SETUP
         ======================= */
-        stage('Grafana Setup') {
-            steps {
-                sh '''
-                docker run -d --name grafana \
-                    -p 3000:3000 \
-                    -e GF_SECURITY_ADMIN_PASSWORD=admin \
-                    --network tp-network \
-                    grafana/grafana:latest
-                '''
-            }
-        }
+       
 
         /* =======================
            TEST API REST
